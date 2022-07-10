@@ -1,5 +1,6 @@
 import discord
 import queue
+import os
 
 
 class QueueDrainer(object):
@@ -38,5 +39,6 @@ class UndeleteBot(discord.Client):
 
 
 client = UndeleteBot()
-client.run("", bot=False)
+TOKEN = os.environ.get("DISCORD_TOKEN")
+client.run(TOKEN, bot=False)
 
