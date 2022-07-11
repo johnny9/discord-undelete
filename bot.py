@@ -14,6 +14,7 @@ class QueueDrainer(object):
             except queue.Empty:  # on python 2 use Queue.Empty
                 break
 
+
 class UndeleteBot(discord.Client):
     message_queues = dict()
 
@@ -34,7 +35,10 @@ class UndeleteBot(discord.Client):
 
     async def on_message_delete(self, message):
         if message.channel.id not in self.message_queues:
-            self.message_queues[message.channel.id] = queue.Queue()
+            self.message_queues[message.channel.id] = queue.Queue(maxsize=100)
+        channel_queue = self.message_queues[message.channel.id]
+        while channel_queue.full():
+            channel_queue.get_nowait()
         self.message_queues[message.channel.id].put(message)
 
 
