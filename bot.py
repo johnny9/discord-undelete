@@ -44,5 +44,5 @@ class UndeleteBot(discord.Client):
 
 client = UndeleteBot()
 TOKEN = os.environ.get("DISCORD_TOKEN")
-client.run(TOKEN, bot=False)
+client.run(TOKEN)
 
