@@ -1,5 +1,4 @@
 import discord
-import queue
 import os
 
 
