@@ -3,16 +3,26 @@ import queue
 import os
 
 
-class QueueDrainer(object):
-    def __init__(self, q):
-        self.q = q
+class PQueue(object):
+    items = []
 
-    def __iter__(self):
-        while True:
-            try:
-                yield self.q.get_nowait()
-            except queue.Empty:  # on python 2 use Queue.Empty
-                break
+    def __init__(self, maxsize=30):
+        self.maxsize = maxsize
+
+    def put(self, item):
+        self.items.append(item)
+        self.items.sort(reverse=True)
+        while len(self.items) > self.maxsize:
+            self.items.pop()
+
+    def get(self):
+        return self.items.pop()
+
+    def get_nowait(self):
+        return self.get()
+
+    def empty(self):
+        return len(self.items) == 0
 
 
 class UndeleteBot(discord.Client):
@@ -27,22 +37,16 @@ class UndeleteBot(discord.Client):
             if channel.id in self.message_queues:
                 q = self.message_queues[channel.id]
                 buffer = ""
-                while True:
-                    try:
-                        message = q.get_nowait()
-                        buffer += message.author.name + ": " + message.content + '\n'
-                    except queue.Empty:  # on python 2 use Queue.Empty
-                        break
+                while not q.empty():
+                    key, message = q.get()
+                    buffer += message.author.name + ": " + message.content + '\n'
                 if buffer:
                     await channel.send(buffer)
 
     async def on_message_delete(self, message):
         if message.channel.id not in self.message_queues:
-            self.message_queues[message.channel.id] = queue.Queue(maxsize=100)
-        channel_queue = self.message_queues[message.channel.id]
-        while channel_queue.full():
-            channel_queue.get_nowait()
-        self.message_queues[message.channel.id].put(message)
+            self.message_queues[message.channel.id] = PQueue(maxsize=30)
+        self.message_queues[message.channel.id].put((message.created_at, message))
 
 
 client = UndeleteBot()
