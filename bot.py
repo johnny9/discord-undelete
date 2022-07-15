@@ -55,8 +55,10 @@ class UndeleteBot(discord.Client):
             self.message_queues[message.channel.id] = PQueue(maxsize=30)
         self.message_queues[message.channel.id].put((message.created_at, message))
 
-intents = discord.Intents.default()
-client = UndeleteBot(intents=intents)
+bot_intents = discord.Intents.default()
+bot_intents.messages = True
+bot_intents.message_content = True
+client = UndeleteBot(intents=bot_intents)
 
 
 @client.tree.command()
