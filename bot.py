@@ -46,6 +46,10 @@ class UndeleteBot(discord.Client):
                 buffer = ""
                 while not q.empty():
                     key, message = q.get()
+                    next_line = message.author.name + ": " + message.content + '\n'
+                    if len(buffer) + len(next_line) > 2000:
+                        await channel.send(buffer)
+                        buffer = ""
                     buffer += message.author.name + ": " + message.content + '\n'
                 if buffer:
                     await channel.send(buffer)
@@ -54,6 +58,7 @@ class UndeleteBot(discord.Client):
         if message.channel.id not in self.message_queues:
             self.message_queues[message.channel.id] = PQueue(maxsize=30)
         self.message_queues[message.channel.id].put((message.created_at, message))
+
 
 bot_intents = discord.Intents.default()
 bot_intents.messages = True
