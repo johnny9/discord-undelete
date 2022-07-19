@@ -55,23 +55,25 @@ class UndeleteBot(discord.Client):
                     await channel.send(buffer)
 
     async def on_message_delete(self, message):
+        print(message.channel.id)
         if message.channel.id not in self.message_queues:
             self.message_queues[message.channel.id] = PQueue(maxsize=30)
         self.message_queues[message.channel.id].put((message.created_at, message))
 
 
-bot_intents = discord.Intents.default()
-bot_intents.messages = True
-bot_intents.message_content = True
-client = UndeleteBot(intents=bot_intents)
+if __name__ == '__main__':
+    bot_intents = discord.Intents.default()
+    bot_intents.messages = True
+    bot_intents.message_content = True
+    client = UndeleteBot(intents=bot_intents)
 
 
-@client.tree.command()
-async def hello(interaction: discord.Interaction):
-    """Says hello!"""
-    await interaction.response.send_message(f'Hi, {interaction.user.mention}')
+    @client.tree.command()
+    async def hello(interaction: discord.Interaction):
+        """Says hello!"""
+        await interaction.response.send_message(f'Hi, {interaction.user.mention}')
 
 
-TOKEN = os.environ.get("DISCORD_TOKEN")
-client.run(TOKEN)
+    TOKEN = os.environ.get("DISCORD_TOKEN")
+    client.run(TOKEN)
 
