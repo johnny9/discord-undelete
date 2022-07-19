@@ -67,13 +67,10 @@ if __name__ == '__main__':
     bot_intents.message_content = True
     client = UndeleteBot(intents=bot_intents)
 
-
     @client.tree.command()
     async def hello(interaction: discord.Interaction):
         """Says hello!"""
         await interaction.response.send_message(f'Hi, {interaction.user.mention}')
 
-
     TOKEN = os.environ.get("DISCORD_TOKEN")
     client.run(TOKEN)
-
