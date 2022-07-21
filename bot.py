@@ -55,7 +55,6 @@ class UndeleteBot(discord.Client):
                     await channel.send(buffer)
 
     async def on_message_delete(self, message):
-        print(message.channel.id)
         if message.channel.id not in self.message_queues:
             self.message_queues[message.channel.id] = PQueue(maxsize=30)
         self.message_queues[message.channel.id].put((message.created_at, message))
