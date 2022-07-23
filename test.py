@@ -69,6 +69,28 @@ class UndeleteBotTest(unittest.IsolatedAsyncioTestCase):
         expected_output = "{}: {}\n".format(message1.author.name, message1.content)
         self.assertEqual(channel.buffer, expected_output)
 
+    async def test_command_only_outputs_in_that_channel(self):
+        channel_one = FakeChannel(1)
+        channel_two = FakeChannel(2)
+        message_one_channel_one = FakeMessage(channel_one, "1", 1)
+        message_two_channel_two = FakeMessage(channel_two, "2", 2)
+        message_three_channel_one = FakeMessage(channel_one, "3", 3)
+        await self.bot.on_message_delete(message_one_channel_one)
+        await self.bot.on_message_delete(message_two_channel_two)
+        await self.bot.on_message_delete(message_three_channel_one)
+        command_message = FakeMessage(channel_one, "$undelete", 4)
+        expected_output = "{}: {}\n".format(message_one_channel_one.author.name,
+                                            message_one_channel_one.content)
+        expected_output += "{}: {}\n".format(message_three_channel_one.author.name,
+                                             message_three_channel_one.content)
+        await self.bot.on_message(command_message)
+        self.assertTrue(channel_one.buffer, expected_output)
+        command_message = FakeMessage(channel_two, "$undelete", 5)
+        expected_output = "{}: {}\n".format(message_two_channel_two.author.name,
+                                            message_two_channel_two.content)
+        await self.bot.on_message(command_message)
+        self.assertTrue(channel_two.buffer, expected_output)
+
 
 if __name__ == '__main__':
     unittest.main()
