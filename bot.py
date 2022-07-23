@@ -4,10 +4,9 @@ import os
 
 
 class PQueue(object):
-    items = []
-
     def __init__(self, maxsize=30):
         self.maxsize = maxsize
+        self.items = []
 
     def put(self, item):
         self.items.append(item)
